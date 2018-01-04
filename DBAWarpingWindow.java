@@ -31,7 +31,7 @@ public class DBAWarpingWindow {
 	/**
 	 * This attribute is used in order to initialize only once the matrixes
 	 */
-	private final static int MAX_SEQ_LENGTH = 20;
+	private final static int MAX_SEQ_LENGTH = 2000;
 
 	/**
 	 * store the cost of the alignment
