@@ -88,7 +88,7 @@ public class DBAWarpingWindow {
 				jStart = Math.max(1, i-w);
 				jStop = Math.min(seqLength, i+w+1);
 				int indexInftyLeft = i-w-1;
-				if(indexInftyLeft>=0)warpingMatrix[i][indexInftyLeft] = Double.POSITIVE_INFINITY;
+				if(indexInftyLeft>=0)costMatrix[i][indexInftyLeft] = Double.POSITIVE_INFINITY;
 				for (j = jStart; j < jStop; j++) {
 					indiceRes = ArgMin3(costMatrix[i - 1][j - 1], costMatrix[i][j - 1], costMatrix[i - 1][j]);
 					pathMatrix[i][j] = indiceRes;
