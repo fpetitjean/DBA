@@ -102,7 +102,7 @@ public class DBA {
 		return sos;
 	}
 	
-	public static double DTW(double[]S,double []T) {
+	public static synchronized double DTW(double[]S,double []T) {
 		int i, j;
 		costMatrix[0][0] = squaredDistance(S[0],T[0]);
 		for (i = 1; i < S.length; i++) {
@@ -122,7 +122,7 @@ public class DBA {
 		return sqrt(costMatrix[S.length - 1][T.length - 1]);
 	}
 	
-	private static double[] DBAUpdate(double[] C, double[][] sequences) {
+	private static synchronized double[] DBAUpdate(double[] C, double[][] sequences) {
 		double[]updatedMean = new double[C.length];
 		int[]nElementsForMean= new int[C.length];
 		
