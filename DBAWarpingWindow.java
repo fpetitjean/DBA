@@ -63,7 +63,7 @@ public class DBAWarpingWindow {
 		return center;
 	}
 	
-	public static int approximateMedoidIndex(double[][] sequences,int w) {
+	private static int approximateMedoidIndex(double[][] sequences,int w) {
 		/*
 		 * we are finding the medoid, as this can take a bit of time, 
 		 * if there is more than 50 time series, we sample 50 as possible 
@@ -102,7 +102,7 @@ public class DBAWarpingWindow {
 		return sos;
 	}
 	
-	public static double DTW(double[]S,double []T, int w) {
+	public static synchronized double DTW(double[]S,double []T, int w) {
 		int i, j;
 		costMatrix[0][0] = squaredDistance(S[0],T[0]);
 		for (i = 1; i < Math.min(S.length,w+1); i++) {
@@ -138,7 +138,7 @@ public class DBAWarpingWindow {
 	 * @param sequences set of sequences to average
 	 * @param w warping window size for DTW
 	 */
-	public static synchronized double[] DBAUpdate(double[] C, double[][] sequences, int w) {
+	private static synchronized double[] DBAUpdate(double[] C, double[][] sequences, int w) {
 		double[]updatedMean = new double[C.length];
 		int[]nElementsForMean= new int[C.length];
 		
@@ -222,7 +222,7 @@ public class DBAWarpingWindow {
 	}
 
 
-	public static double Min3(final double a, final double b, final double c) {
+	private static double Min3(final double a, final double b, final double c) {
 		if (a < b) {
 			if (a < c) {
 				return a;
@@ -238,7 +238,7 @@ public class DBAWarpingWindow {
 		}
 	}
 
-	public static int ArgMin3(final double a, final double b, final double c) {
+	private static int ArgMin3(final double a, final double b, final double c) {
 		if (a < b) {
 			if (a < c) {
 				return 0;
@@ -254,22 +254,10 @@ public class DBAWarpingWindow {
 		}
 	}
 
-	public static double squaredDistance(double a, double b) {
+	private static double squaredDistance(double a, double b) {
 		return (a - b) * (a - b);
 	}
 
-
-	public static double barycenter(final Object... tab) {
-		if (tab.length < 1) {
-			throw new RuntimeException("empty double tab");
-		}
-		double sum = 0.0;
-		sum = 0.0;
-		for (Object o : tab) {
-			sum += ((Double) o);
-		}
-		return sum / tab.length;
-	}
 
 	public static void main(String [] args){
 		int w = 5;
