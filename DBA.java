@@ -63,7 +63,7 @@ public class DBA {
 		return center;
 	}
 	
-	public static int approximateMedoidIndex(double[][] sequences) {
+	private static int approximateMedoidIndex(double[][] sequences) {
 		/*
 		 * we are finding the medoid, as this can take a bit of time, 
 		 * if there is more than 50 time series, we sample 50 as possible 
@@ -122,7 +122,7 @@ public class DBA {
 		return sqrt(costMatrix[S.length - 1][T.length - 1]);
 	}
 	
-	public static double[] DBAUpdate(double[] C, double[][] sequences) {
+	private static double[] DBAUpdate(double[] C, double[][] sequences) {
 		double[]updatedMean = new double[C.length];
 		int[]nElementsForMean= new int[C.length];
 		
@@ -199,7 +199,7 @@ public class DBA {
 
 
 
-	public static double Min3(final double a, final double b, final double c) {
+	private static double Min3(final double a, final double b, final double c) {
 		if (a < b) {
 			if (a < c) {
 				return a;
@@ -215,7 +215,7 @@ public class DBA {
 		}
 	}
 
-	public static int ArgMin3(final double a, final double b, final double c) {
+	private static int ArgMin3(final double a, final double b, final double c) {
 		if (a < b) {
 			if (a < c) {
 				return 0;
@@ -231,21 +231,8 @@ public class DBA {
 		}
 	}
 
-	public static double squaredDistance(double a, double b) {
+	private static double squaredDistance(double a, double b) {
 		return (a - b) * (a - b);
-	}
-
-
-	public static double barycenter(final Object... tab) {
-		if (tab.length < 1) {
-			throw new RuntimeException("empty double tab");
-		}
-		double sum = 0.0;
-		sum = 0.0;
-		for (Object o : tab) {
-			sum += ((Double) o);
-		}
-		return sum / tab.length;
 	}
 
 	public static void main(String [] args){
