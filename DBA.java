@@ -55,7 +55,6 @@ public class DBA {
 	 */
 	public static double[] performDBA(double[][] sequences) {
 		int medoidIndex = approximateMedoidIndex(sequences);
-		System.out.println(medoidIndex);
 		double[]center = Arrays.copyOf(sequences[medoidIndex], sequences[medoidIndex].length);
 		
 		for (int i = 0; i < 15; i++) {
