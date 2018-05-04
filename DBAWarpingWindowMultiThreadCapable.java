@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016 Chang Wei Tan 
+ * Copyright (C) 2018 Chang Wei Tan, François Petitjean 
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
