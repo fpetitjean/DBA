@@ -5,7 +5,7 @@ Averaging for Dynamic Time Warping
 
 # Underlying research and scientific papers
 
-This code is supporting 5 research papers:
+This code is supporting 3 research papers:
 * [Pattern Recognition 2011](http://francois-petitjean.com/Research/Petitjean2011-PR.pdf): A global averaging method for Dynamic Time Warping
 * [ICDM 2014](http://francois-petitjean.com/Research/Petitjean2014-ICDM-DTW.pdf): Dynamic Time Warping Averaging of Time Series allows Faster and more Accurate Classification
 * [ICDM 2017](http://francois-petitjean.com/Research/ForestierPetitjean2017-ICDM.pdf): Generating synthetic time series to augment sparse datasets
