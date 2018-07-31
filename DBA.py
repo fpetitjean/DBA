@@ -1,154 +1,182 @@
 '''
 /*******************************************************************************
- * Copyright (C) 2017 Zahraa Abdallah 
- * 
+ * Copyright (C) 2018 Francois Petitjean
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 3 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/ 
-This is a python Class for DBA 
-Python command: 
-    import DBA
-    DBA.DBA()
-
-
+ ******************************************************************************/
 '''
-
-import numpy
-import math
-from random import *
-
- # This toy class show the use of DBA.
-
-__author__ ="Zahraa Abdallah"
-
-class DBA(object): 
-    
-    NIL = -1
-    DIAGONAL = 0
-    LEFT = 1
-    UP = 2
-    
-	# This attribute is used in order to initialize only once the matrixes
-	 
-    MAX_SEQ_LENGTH = 2000
-  
-    # store the cost of the alignment
-
-    costMatrix =[[0 for i in range(MAX_SEQ_LENGTH)] for j in range(MAX_SEQ_LENGTH)]
-    
-    # store the warping path
-
-    pathMatrix = [[0 for i in range(MAX_SEQ_LENGTH)] for j in range(MAX_SEQ_LENGTH)]
-    
-    # store the length of the optimal path in each cell
-
-    optimalPathLength = [[0 for i in range(MAX_SEQ_LENGTH)] for j in range(MAX_SEQ_LENGTH)]
-    
-    def __init__(self):
-        sequences =[[0 for i in range(20)] for j in range(100)]
-        for i in range(0,len(sequences)): 
-          for j in range (0, len(sequences[i])):
-              sequences[i][j] = math.cos(random()*j/20.0*math.pi) 
-        averageSequence = [0 for i in range (0,len(sequences[0]))]
-        choice = int(random()*100)
-        
-        for j in range (len(averageSequence)):
-            averageSequence[j] = sequences[choice][j] 
-        
-        print  averageSequence 
-
-        averageSequence= self.applyDBA(averageSequence, sequences)
-       
-        print  averageSequence 
-
-        averageSequence= self.applyDBA(averageSequence, sequences)
-        
-        print  averageSequence 
-
-    
-    def distanceTo(self, a, b):
-        return (a - b) * (a - b)
-
-    def barycenter(self, tab):
-        if len(tab) < 1:  
-            print "empty double tab"
-            return
-        sum_ = 0.0
-        for o in tab: 
-            sum_ += float(o) #to double 
-        return sum_/ len(tab)
-    
-    '''
-    	 * Dtw Barycenter Averaging (DBA)
-	 * @param C average sequence to update
-	 * @param sequences set of sequences to average
-    '''
-    
-    def applyDBA(self, C, sequences): 
-        tupleAssociation = []
-        res = 0.0
-        centerLength = len(C)
-        for i in range (0,len(C)) :
-            tupleAssociation.append([]) 
-
-        for T in sequences:
-            seqLength = len(T)
-            self.costMatrix[0][0] = self.distanceTo(C[0], T[0])
-            self.pathMatrix[0][0] = self.NIL;
-            self.optimalPathLength[0][0] = 0
-        
-            for i in range(1, centerLength): 
-                self.costMatrix[i][0] = self.costMatrix[i - 1][0] + self.distanceTo(C[i], T[0])
-                self.pathMatrix[i][0] = self.UP
-                self.optimalPathLength[i][0] = i
-        
-            for j in range(1, seqLength):
-                self.costMatrix[0][j] = self.costMatrix[0][j - 1] + self.distanceTo(T[j], C[0])
-                self.pathMatrix[0][j] = self.LEFT
-                self.optimalPathLength[0][j] = j
-
-            for i in range(1, centerLength): 
-                for j in range (1,seqLength):
-                    indiceRes = numpy.argmin([self.costMatrix[i - 1][j - 1], self.costMatrix[i][j - 1], self.costMatrix[i - 1][j]])
-                    self.pathMatrix[i][j] = indiceRes
-                    if indiceRes ==self.DIAGONAL : 
-                        res = self.costMatrix[i - 1][j - 1]
-                        self.optimalPathLength[i][j] = self.optimalPathLength[i - 1][j - 1] + 1
-                    elif indiceRes== self.LEFT :
-                        res = self.costMatrix[i][j - 1]
-                        self.optimalPathLength[i][j] = self.optimalPathLength[i][j - 1] + 1
-                    elif indiceRes== self.UP:
-                        res = self.costMatrix[i - 1][j]
-                        self.optimalPathLength[i][j] = self.optimalPathLength[i - 1][j] + 1
-                    self.costMatrix[i][j] = res + self.distanceTo(C[i], T[j])
-
-            nbTuplesAverageSeq = self.optimalPathLength[centerLength - 1][seqLength - 1] + 1
-            i = centerLength - 1
-            j = seqLength - 1
-        
-            for  t in range(nbTuplesAverageSeq-1,-1, -1):
-                tupleAssociation[i].append(T[j])
-                if self.pathMatrix[i][j]==self.DIAGONAL: 
-                    i = i - 1
-                    j = j - 1
-                elif self.pathMatrix[i][j]==self.LEFT: 
-                    j = j - 1
-                elif self.pathMatrix[i][j]==self.UP: 
-                    i = i - 1
-        
-        for t in range(0,centerLength): 
-            C[t] = self.barycenter(tupleAssociation[t])
-        return C
+from __future__ import division
+import numpy as np
+import matplotlib.pyplot as plt
 
 
-    
-   
+__author__ ="Francois Petitjean"
+
+def performDBA(series, n_iterations=10):
+    n_series = len(series)
+    max_length = reduce(max, map(len, series))
+
+    cost_mat = np.zeros((max_length, max_length))
+    delta_mat = np.zeros((max_length, max_length))
+    path_mat = np.zeros((max_length, max_length), dtype=np.int8)
+
+    medoid_ind = approximate_medoid_index(series,cost_mat,delta_mat)
+    center = series[medoid_ind]
+
+    for i in range(0,n_iterations):
+        center = DBA_update(center, series, cost_mat, path_mat, delta_mat)
+
+    return center
+
+def approximate_medoid_index(series,cost_mat,delta_mat):
+    if len(series)<=50:
+        indices = range(0,len(series))
+    else:
+        indices = np.random.choice(range(0,len(series)),50,replace=False)
+
+    medoid_ind = -1
+    best_ss = 1e20
+    for index_candidate in indices:
+        candidate = series[index_candidate]
+        ss = sum_of_squares(candidate,series,cost_mat,delta_mat)
+        if(medoid_ind==-1 or ss<best_ss):
+            best_ss = ss
+            medoid_ind = index_candidate
+    return medoid_ind
+
+def sum_of_squares(s,series,cost_mat,delta_mat):
+    return sum(map(lambda t:squared_DTW(s,t,cost_mat,delta_mat),series))
+
+def DTW(s,t,cost_mat,delta_mat):
+    return np.sqrt(squared_DTW(s,t,cost_mat,delta_mat))
+
+def squared_DTW(s,t,cost_mat,delta_mat):
+    s_len = len(s)
+    t_len = len(t)
+    length = len(s)
+    fill_delta_mat_dtw(s, t, delta_mat)
+    cost_mat[0, 0] = delta_mat[0, 0]
+    for i in range(1, s_len):
+        cost_mat[i, 0] = cost_mat[i-1, 0]+delta_mat[i, 0]
+
+    for j in range(1, t_len):
+        cost_mat[0, j] = cost_mat[0, j-1]+delta_mat[0, j]
+
+    for i in range(1, s_len):
+        for j in range(1, t_len):
+            diag,left,top =cost_mat[i-1, j-1], cost_mat[i, j-1], cost_mat[i-1, j]
+            if(diag <=left):
+                if(diag<=top):
+                    res = diag
+                else:
+                    res = top
+            else:
+                if(left<=top):
+                    res = left
+                else:
+                    res = top
+            cost_mat[i, j] = res+delta_mat[i, j]
+    return cost_mat[s_len-1,t_len-1]
+
+def fill_delta_mat_dtw(center, s, delta_mat):
+    np.subtract.outer(center, s, out=delta_mat)
+    np.square(delta_mat, out=delta_mat)
+
+def DBA_update(center, series, cost_mat, path_mat, delta_mat):
+    options_argmin = [(-1, -1), (0, -1), (-1, 0)]
+    updated_center = np.zeros(center.shape)
+    n_elements = np.array(np.zeros(center.shape), dtype=int)
+    center_length = len(center)
+    for s in series:
+        s_len = len(s)
+        fill_delta_mat_dtw(center, s, delta_mat)
+        cost_mat[0, 0] = delta_mat[0, 0]
+        path_mat[0, 0] = -1
+
+        for i in range(1, center_length):
+            cost_mat[i, 0] = cost_mat[i-1, 0]+delta_mat[i, 0]
+            path_mat[i, 0] = 2
+
+        for j in range(1, s_len):
+            cost_mat[0, j] = cost_mat[0, j-1]+delta_mat[0, j]
+            path_mat[0, j] = 1
+
+        for i in range(1, center_length):
+            for j in range(1, s_len):
+                diag,left,top =cost_mat[i-1, j-1], cost_mat[i, j-1], cost_mat[i-1, j]
+                if(diag <=left):
+                    if(diag<=top):
+                        res = diag
+                        path_mat[i,j] = 0
+                    else:
+                        res = top
+                        path_mat[i,j] = 2
+                else:
+                    if(left<=top):
+                        res = left
+                        path_mat[i,j] = 1
+                    else:
+                        res = top
+                        path_mat[i,j] = 2
+
+                cost_mat[i, j] = res+delta_mat[i, j]
+
+        i = center_length-1
+        j = s_len-1
+
+        while(path_mat[i, j] != -1):
+            updated_center[i] += s[j]
+            n_elements[i] += 1
+            move = options_argmin[path_mat[i, j]]
+            i += move[0]
+            j += move[1]
+        assert(i == 0 and j == 0)
+        updated_center[i] += s[j]
+        n_elements[i] += 1
+
+    return np.divide(updated_center, n_elements)
+
+def main():
+    #generating synthetic data
+    n_series = 20
+    length = 200
+
+    series = list()
+    padding_length=30
+    indices = range(0, length-padding_length)
+    main_profile_gen = np.array(map(lambda j: np.sin(2*np.pi*j/len(indices)),indices))
+    for i in range(0,n_series):
+        n_pad_left = np.random.randint(0,padding_length)
+        #adding zero at the start or at the end to shif the profile
+        series_i = np.pad(main_profile_gen,(n_pad_left,padding_length-n_pad_left),mode='constant',constant_values=0)
+        #randomize a bit
+        series_i = map(lambda j:np.random.normal(0,0.02)+j,series_i)
+        assert(len(series_i)==length)
+        series.append(series_i)
+    series = np.array(series)
+
+    #plotting the synthetic data
+    for s in series:
+        plt.plot(range(0,length), s)
+    plt.draw()
+
+    #calculating average series with DBA
+    average_series = performDBA(series)
+
+    #plotting the average series
+    plt.figure()
+    plt.plot(range(0,length), average_series)
+    plt.show()
+
+if __name__== "__main__":
+    main()
