@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016 Chang Wei Tan 
+ * Copyright (C) 2018 Chang Wei Tan, François Petitjean 
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ import java.util.Random;
  * This toy class show the use of DBA with warping window.	
  * @author Chang Wei Tan
  */
-public class DBAWarpingWindow {
+public class DBAWarpingWindow{
 	static final long serialVersionUID = 1L;
 
 	private final static int NIL = -1;
@@ -34,36 +34,28 @@ public class DBAWarpingWindow {
 	private final static int UP = 2;
 
 	/**
-	 * This attribute is used in order to initialize only once the matrixes
-	 */
-	private final static int MAX_SEQ_LENGTH = 2000;
-
-	/**
-	 * store the cost of the alignment
-	 */
-	private static double[][] costMatrix = new double[MAX_SEQ_LENGTH][MAX_SEQ_LENGTH];
-	
-	/**
-	 * store the warping path
-	 */
-	private static int[][] pathMatrix = new int[MAX_SEQ_LENGTH][MAX_SEQ_LENGTH];
-
-	/**
 	 * Performs the DBA averaging by first finding the median over a sample, then doing n iterations of the update
 	 * @param sequences set of sequences to average
 	 * @param w warping window
 	 */
 	public static double[] performDBA(double[][] sequences,int w) {
-		int medoidIndex = approximateMedoidIndex(sequences,w);
+		int maxLength=0;
+		for (int i = 0; i < sequences.length; i++) {
+			maxLength = Math.max(maxLength,sequences[i].length);
+		}
+		double[][]costMatrix = new double[maxLength][maxLength];
+		int[][]pathMatrix = new int[maxLength][maxLength];
+		
+		int medoidIndex = approximateMedoidIndex(sequences,w,costMatrix);
 		double[]center = Arrays.copyOf(sequences[medoidIndex], sequences[medoidIndex].length);
 		
 		for (int i = 0; i < 15; i++) {
-			center = DBAUpdate(center, sequences,w);
+			center = DBAUpdate(center, sequences,w,costMatrix,pathMatrix);
 		}
 		return center;
 	}
 	
-	private static int approximateMedoidIndex(double[][] sequences,int w) {
+	private static int approximateMedoidIndex(double[][] sequences,int w,double[][]costMatrix) {
 		/*
 		 * we are finding the medoid, as this can take a bit of time, 
 		 * if there is more than 50 time series, we sample 50 as possible 
@@ -84,7 +76,7 @@ public class DBAWarpingWindow {
 		
 		for (int medianCandidateIndex:medianIndices) {
 			double[] possibleMedoid = sequences[medianCandidateIndex];
-			double tmpSoS = sumOfSquares(possibleMedoid, sequences,w);
+			double tmpSoS = sumOfSquares(possibleMedoid, sequences,w,costMatrix);
 			if (tmpSoS < lowestSoS) {
 				indexMedoid = medianCandidateIndex;
 				lowestSoS = tmpSoS;
@@ -93,16 +85,16 @@ public class DBAWarpingWindow {
 		return indexMedoid;
 	}
 	
-	private static double sumOfSquares(double[]sequence,double[][]sequences, int w) {
+	private static double sumOfSquares(double[]sequence,double[][]sequences, int w,double[][]costMatrix) {
 		double sos = 0.0;
 		for (int i = 0; i < sequences.length; i++) {
-			double dist = DTW(sequence,sequences[i],w);
+			double dist = DTW(sequence,sequences[i],w,costMatrix);
 			sos += dist*dist;
 		}
 		return sos;
 	}
 	
-	public static synchronized double DTW(double[]S,double []T, int w) {
+	public static double DTW(double[]S,double []T, int w,double[][]costMatrix) {
 		int i, j;
 		costMatrix[0][0] = squaredDistance(S[0],T[0]);
 		for (i = 1; i < Math.min(S.length,w+1); i++) {
@@ -138,7 +130,7 @@ public class DBAWarpingWindow {
 	 * @param sequences set of sequences to average
 	 * @param w warping window size for DTW
 	 */
-	private static synchronized double[] DBAUpdate(double[] C, double[][] sequences, int w) {
+	private static double[] DBAUpdate(double[] C, double[][] sequences, int w,double[][]costMatrix,int[][]pathMatrix) {
 		double[]updatedMean = new double[C.length];
 		int[]nElementsForMean= new int[C.length];
 		
@@ -260,11 +252,11 @@ public class DBAWarpingWindow {
 
 
 	public static void main(String [] args){
-		int w = 5;
+		int w = 1000;
 		Random r = new Random(3071980);
 		double [][]sequences = new double[50][];
 		for(int i=0;i<sequences.length;i++){
-			sequences[i] = new double[20];
+			sequences[i] = new double[12000];
 			for(int j=0;j<sequences[i].length;j++){
 				sequences[i][j] = Math.cos(r.nextDouble()*j/20.0*Math.PI) ;
 			}

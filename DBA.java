@@ -26,7 +26,7 @@ import java.util.Random;
  * This toy class show the use of DBA.
  * @author Francois Petitjean
  */
-public class DBA {
+public class DBA{
 	static final long serialVersionUID = 1L;
 
 	private final static int NIL = -1;
@@ -35,35 +35,27 @@ public class DBA {
 	private final static int UP = 2;
 
 	/**
-	 * This attribute is used in order to initialize only once the matrixes
-	 */
-	private final static int MAX_SEQ_LENGTH = 2000;
-
-	/**
-	 * store the cost of the alignment
-	 */
-	private static double[][] costMatrix = new double[MAX_SEQ_LENGTH][MAX_SEQ_LENGTH];
-	
-	/**
-	 * store the warping path
-	 */
-	private static int[][] pathMatrix = new int[MAX_SEQ_LENGTH][MAX_SEQ_LENGTH];
-
-	/**
 	 * Performs the DBA averaging by first finding the median over a sample, then doing n iterations of the update
 	 * @param sequences set of sequences to average
 	 */
 	public static double[] performDBA(double[][] sequences) {
-		int medoidIndex = approximateMedoidIndex(sequences);
+		
+		int maxLength=0;
+		for (int i = 0; i < sequences.length; i++) {
+			maxLength = Math.max(maxLength,sequences[i].length);
+		}
+		double[][]costMatrix = new double[maxLength][maxLength];
+		int[][]pathMatrix = new int[maxLength][maxLength];
+		int medoidIndex = approximateMedoidIndex(sequences,costMatrix);
 		double[]center = Arrays.copyOf(sequences[medoidIndex], sequences[medoidIndex].length);
 		
 		for (int i = 0; i < 15; i++) {
-			center = DBAUpdate(center, sequences);
+			center = DBAUpdate(center, sequences,costMatrix,pathMatrix);
 		}
 		return center;
 	}
 	
-	private static int approximateMedoidIndex(double[][] sequences) {
+	private static int approximateMedoidIndex(double[][] sequences,double[][]mat) {
 		/*
 		 * we are finding the medoid, as this can take a bit of time, 
 		 * if there is more than 50 time series, we sample 50 as possible 
@@ -84,7 +76,7 @@ public class DBA {
 		
 		for (int medianCandidateIndex:medianIndices) {
 			double[] possibleMedoid = sequences[medianCandidateIndex];
-			double tmpSoS = sumOfSquares(possibleMedoid, sequences);
+			double tmpSoS = sumOfSquares(possibleMedoid, sequences,mat);
 			if (tmpSoS < lowestSoS) {
 				indexMedoid = medianCandidateIndex;
 				lowestSoS = tmpSoS;
@@ -93,16 +85,16 @@ public class DBA {
 		return indexMedoid;
 	}
 	
-	private static double sumOfSquares(double[]sequence,double[][]sequences) {
+	private static double sumOfSquares(double[]sequence,double[][]sequences,double[][]mat) {
 		double sos = 0.0;
 		for (int i = 0; i < sequences.length; i++) {
-			double dist = DTW(sequence,sequences[i]);
+			double dist = DTW(sequence,sequences[i],mat);
 			sos += dist*dist;
 		}
 		return sos;
 	}
 	
-	public static synchronized double DTW(double[]S,double []T) {
+	public static double DTW(double[]S,double []T,double[][]costMatrix) {
 		int i, j;
 		costMatrix[0][0] = squaredDistance(S[0],T[0]);
 		for (i = 1; i < S.length; i++) {
@@ -122,7 +114,7 @@ public class DBA {
 		return sqrt(costMatrix[S.length - 1][T.length - 1]);
 	}
 	
-	private static synchronized double[] DBAUpdate(double[] C, double[][] sequences) {
+	private static double[] DBAUpdate(double[] C, double[][] sequences,double[][]costMatrix,int[][]pathMatrix) {
 		double[]updatedMean = new double[C.length];
 		int[]nElementsForMean= new int[C.length];
 		
@@ -232,7 +224,8 @@ public class DBA {
 	}
 
 	private static double squaredDistance(double a, double b) {
-		return (a - b) * (a - b);
+		double diff = a-b;
+		return diff*diff;
 	}
 
 	public static void main(String [] args){
