@@ -3,8 +3,10 @@ DBA
 
 DBA stands for Dynamic Time Warping Barycenter Averaging. DBA is an averaging method that is consistent with Dynamic Time Warping. I give below an example of the difference between the traditional arithmetic mean of the set of time series and DBA. 
 
-![arithmetic mean](https://raw.githubusercontent.com/fpetitjean/images/branch/path/to/img.png)
-![DBA](https://raw.githubusercontent.com/fpetitjean/images/branch/path/to/img.png)
+![arithmetic mean](https://raw.githubusercontent.com/fpetitjean/DBA/master/images/arithmetic.png)
+
+![DBA](https://raw.githubusercontent.com/fpetitjean/DBA/master/images/DBA.png)
+
 
 # Underlying research and scientific papers
 
