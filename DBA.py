@@ -18,6 +18,7 @@
 from __future__ import division
 import numpy as np
 import matplotlib.pyplot as plt
+from functools import reduce
 
 
 __author__ ="Francois Petitjean"
@@ -89,8 +90,9 @@ def squared_DTW(s,t,cost_mat,delta_mat):
     return cost_mat[s_len-1,t_len-1]
 
 def fill_delta_mat_dtw(center, s, delta_mat):
-    np.subtract.outer(center, s, out=delta_mat)
-    np.square(delta_mat, out=delta_mat)
+    slim = delta_mat[:len(center),:len(s)]
+    np.subtract.outer(center, s,out=slim)
+    np.square(slim, out=slim)
 
 def DBA_update(center, series, cost_mat, path_mat, delta_mat):
     options_argmin = [(-1, -1), (0, -1), (-1, 0)]
@@ -154,20 +156,25 @@ def main():
     series = list()
     padding_length=30
     indices = range(0, length-padding_length)
-    main_profile_gen = np.array(map(lambda j: np.sin(2*np.pi*j/len(indices)),indices))
+    main_profile_gen = np.array([np.sin(2*np.pi*j/len(indices)) for j in indices])
+    randomizer = lambda j:np.random.normal(j,0.02)
+    randomizer_fun = np.vectorize(randomizer)
     for i in range(0,n_series):
         n_pad_left = np.random.randint(0,padding_length)
         #adding zero at the start or at the end to shif the profile
         series_i = np.pad(main_profile_gen,(n_pad_left,padding_length-n_pad_left),mode='constant',constant_values=0)
+        #chop some of the end to prove it can work with multiple lengths
+        l = np.random.randint(length-20,length+1)
+        series_i = series_i[:l]
         #randomize a bit
-        series_i = map(lambda j:np.random.normal(0,0.02)+j,series_i)
-        assert(len(series_i)==length)
+        series_i = randomizer_fun(series_i)
+
         series.append(series_i)
     series = np.array(series)
 
     #plotting the synthetic data
     for s in series:
-        plt.plot(range(0,length), s)
+        plt.plot(range(0,len(s)), s)
     plt.draw()
 
     #calculating average series with DBA
@@ -175,7 +182,7 @@ def main():
 
     #plotting the average series
     plt.figure()
-    plt.plot(range(0,length), average_series)
+    plt.plot(range(0,len(average_series)), average_series)
     plt.show()
 
 if __name__== "__main__":
