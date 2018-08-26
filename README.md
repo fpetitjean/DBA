@@ -57,4 +57,5 @@ Each file corresponds to one of these combinations; if one is missing for your u
 * `DBAWarpingWindow.java` same as `DBA.java` but with a warping window as a parameter
 * `DBA.m` Matlab implementation of DBA with no windows 
 * `DBA.py` Fast Python implementation of DBA with no windows
+* `DBA_multivariate.py` Fast Python implementation of DBA for multi-variate time series with no windows
 * `DBA_DTW.py` Python implementation of DBA with warping window
