@@ -49,7 +49,7 @@ When using this repository, please cite:
 
 # Organisation of the repository
 
-This repository gives you different versions of DBA for different programming language, whether you want to have a warping window or not, etc. 
+This repository gives you different versions of DBA for different programming language, whether you want to have a warping window or not, etc. Apologies for the inconsistencies between versions but I've basically created them as the need arose. 
 
 Each file corresponds to one of these combinations; if one is missing for your usage, let me know. Currently the length is limited to 1,000 (let me know if you need more). 
 
@@ -58,4 +58,4 @@ Each file corresponds to one of these combinations; if one is missing for your u
 * `DBA.m` Matlab implementation of DBA with no windows 
 * `DBA.py` Fast Python implementation of DBA with no windows
 * `DBA_multivariate.py` Fast Python implementation of DBA for multi-variate time series with no windows
-* `DBA_DTW.py` Python implementation of DBA with warping window
+* `cython/*` Cython implementation (thus usable in Python) of DBA with warping window (mono-variate)
