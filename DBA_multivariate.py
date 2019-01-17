@@ -65,9 +65,8 @@ def DTW(s,t,cost_mat,delta_mat):
     return np.sqrt(squared_DTW(s,t,cost_mat,delta_mat))
 
 def squared_DTW(s,t,cost_mat,delta_mat,tmp_delta_mat):
-    s_len = len(s)
-    t_len = len(t)
-    length = len(s)
+    s_len = s.shape[1]
+    t_len = t.shape[1]
     fill_delta_mat_dtw(s, t, delta_mat,tmp_delta_mat)
     cost_mat[0, 0] = delta_mat[0, 0]
     for i in range(1, s_len):
@@ -169,9 +168,9 @@ def main():
     #generating synthetic data
     n_series = 20
     length = 200
-    n_dims = 3
+    n_dims = 201
 
-    print('Important note: the data should be structure 'channels-first', ie the series should have shape (n_channels,length)')
+    print('Important note: the data should be structure "channels-first", ie the series should have shape (n_channels,length)')
 
     series = list()
     padding_length=30
